@@ -1,9 +1,13 @@
-import NextAuth, { NextAuthOptions } from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
-import FacebookProvider from "next-auth/providers/facebook"
-import GithubProvider from "next-auth/providers/github"
-import TwitterProvider from "next-auth/providers/twitter"
-import Auth0Provider from "next-auth/providers/auth0"
+import NextAuth, { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import FacebookProvider from "next-auth/providers/facebook";
+import GithubProvider from "next-auth/providers/github";
+import TwitterProvider from "next-auth/providers/twitter";
+import Auth0Provider from "next-auth/providers/auth0";
+import EmailProvider from "next-auth/providers/email";
+import { FirestoreAdapter } from "@next-auth/firebase-adapter";
+import { firestore } from "./lib/firestore";
+
 // import AppleProvider from "next-auth/providers/apple"
 // import EmailProvider from "next-auth/providers/email"
 
@@ -11,11 +15,9 @@ import Auth0Provider from "next-auth/providers/auth0"
 // https://next-auth.js.org/configuration/options
 export const authOptions: NextAuthOptions = {
   // https://next-auth.js.org/configuration/providers/oauth
+  adapter: FirestoreAdapter(),
   providers: [
-    /* EmailProvider({
-         server: process.env.EMAIL_SERVER,
-         from: process.env.EMAIL_FROM,
-       }),
+    /* 
     // Temporarily removing the Apple provider from the demo site as the
     // callback URL for it needs updating due to Vercel changing domains
 
@@ -29,6 +31,18 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     */
+
+    EmailProvider({
+      server: {
+        host: process.env.EMAIL_SERVER_HOST,
+        port: process.env.EMAIL_SERVER_PORT,
+        auth: {
+          user: process.env.EMAIL_SERVER_USER,
+          pass: process.env.EMAIL_SERVER_PASSWORD,
+        },
+      },
+      from: process.env.EMAIL_FROM,
+    }),
     FacebookProvider({
       clientId: process.env.FACEBOOK_ID,
       clientSecret: process.env.FACEBOOK_SECRET,
@@ -50,16 +64,37 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.AUTH0_SECRET,
       issuer: process.env.AUTH0_ISSUER,
     }),
+
+    {
+      id: "oidcCLIENT",
+      name: "Login DNA",
+      type: "oauth",
+      version: "2.0",
+      accessTokenUrl: "http://localhost:3000/api/auth/oidc",
+      requestTokenUrl: "http://localhost:3000/api/auth/oidc",
+      profileUrl: "http://localhost:3000/api/oidc/me",
+      async profile(profile, tokens) {
+        // You can use the tokens, in case you want to fetch more profile information
+        // For example several OAuth providers do not return email by default.
+        // Depending on your provider, will have tokens like `access_token`, `id_token` and or `refresh_token`
+        return {
+          id: profile.id,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+        };
+      },
+    },
   ],
   theme: {
     colorScheme: "light",
   },
   callbacks: {
     async jwt({ token }) {
-      token.userRole = "admin"
-      return token
+      token.userRole = "admin";
+      return token;
     },
   },
-}
+};
 
-export default NextAuth(authOptions)
+export default NextAuth(authOptions);
