@@ -15,7 +15,7 @@ import { firestore } from "./lib/firestore";
 // https://next-auth.js.org/configuration/options
 export const authOptions: NextAuthOptions = {
   // https://next-auth.js.org/configuration/providers/oauth
-  adapter: FirestoreAdapter(),
+  // adapter: FirestoreAdapter(),
   providers: [
     /* 
     // Temporarily removing the Apple provider from the demo site as the
