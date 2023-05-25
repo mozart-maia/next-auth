@@ -26,6 +26,7 @@ export default async function GET(req, res) {
             "http://localhost:3000/api/auth/client",
             "https://oidcdebugger.com/debug",
             "http://localhost:8080/auth/login/callback",
+            "https://auth-dna-e02f3.firebaseapp.com/__/auth/handler",
           ],
           response_types: ["code"],
 
