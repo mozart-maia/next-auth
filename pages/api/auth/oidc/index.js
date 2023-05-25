@@ -49,7 +49,10 @@ export default async function GET(req, res) {
       },
     };
 
-    const oidc = new Provider(process.env.NEXTAUTH_URL, configuration);
+    const oidc = new Provider(
+      "https://next-auth-ruddy.vercel.app/",
+      configuration
+    );
     return res.status(200).json({ mensagem: "sucesso" });
     // console.log(oidc);
     // return oidc;
